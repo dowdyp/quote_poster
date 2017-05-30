@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Discord QoTY Poster</title>
+
+    <!-- Stylesheet -->
+
+    <link rel="stylesheet" href="http://spook.moe/web.css">
+    <!-- JQuery & Angular -->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js" type="text/javascript"></script>
+
+    <!-- Import main scripts -->
+
+    <script src="./js/main.js" type="text/javascript"></script>
+
+    <!-- End Head Directives -->
+
+    </head>
+      <body ng-app="webApp" ng-controller="appController">
+        Generate your message:
+
+        <br>
+        <br>
+
+        <textarea class="input" style="width: 450px; height: 100px;" ng-model="inputValues.message" ng-keydown="inputValues.message" ng-init="defaultValues.message" placeholder="Input your message here!"></textarea>
+
+        <br>
+
+        <input class="input" style="width: 290px" ng-model="inputValues.name" ng-keydown="inputValues.name" ng-init="defaultValues.name" placeholder="Name">
+
+        <select class="select" ng-model="inputValues.occupation" style="margin-bottom: 10px; width: 155px">
+          <option value="">Select Occupation</option>
+          <option ng-repeat="occupation in defaultValues.occupation" value="{{occupation}}">{{occupation}}</option>
+        </select>
+
+        <br>
+
+        <input class="input" ng-model="inputValues.town" ng-keydown="inputValues.town" style="width: 290px;" placeholder="Town">
+
+        <select class="select" ng-model="inputValues.state" style="margin-bottom: 10px; width: 155px">
+          <option value="{{defaultValues.state}}">Select State</option>
+          <option ng-repeat="state in defaultValues.states" value="{{state}}">{{state}}</option>
+        </select>
+
+        <div class="preview">
+          Your current message is:
+          <br>
+
+          <div ng-if="inputValues.message != ''">
+            "{{inputValues.message}}"
+          </div>
+     	  <div>
+     	    {{inputValues.name}}<span ng-if="inputValues.name != ''">, </span>{{inputValues.occupation}}
+          </div>
+          <div>
+          	{{inputValues.town}}<span ng-if="inputValues.town != ''">, </span>{{inputValues.state}}
+          </div>
+      </body>
+
+</html>
