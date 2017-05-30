@@ -9,9 +9,10 @@
     <link rel="stylesheet" href="http://spook.moe/web.css">
 
     <style>
-    .show {
-    	display: inline !important;
-    }
+      .show {
+        display: inline !important;
+      }
+
     </style>
     <!-- JQuery & Angular -->
 
@@ -25,70 +26,77 @@
 
     <!-- End Head Directives -->
 
-    </head>
-      <body ng-app="webApp" ng-controller="appController">
-        Generate your message:
+  </head>
 
-        <br>
+  <body ng-app="webApp" ng-controller="appController">
+    Generate your message:
 
-        <textarea class="input" style="width: 450px; height: 100px;" ng-model="inputValues.message" placeholder="Input your message here!"></textarea>
+    <br>
 
-        <br>
+    <textarea class="input" style="width: 450px; height: 100px;" ng-model="inputValues.message" placeholder="Input your message here!"></textarea>
+x
+    <br>
 
-        <input class="input" style="width: 290px" ng-model="inputValues.name" placeholder="Name">
+    <input class="input" style="width: 290px" ng-model="inputValues.name" placeholder="Name">
 
-        <select class="select" ng-model="inputValues.occupation" style="margin-bottom: 10px; width: 155px">
-          <option value="">Select Occupation</option>
-          <option ng-repeat="occupation in defaultValues.occupation" value="{{occupation}}">{{occupation}}</option>
-        </select>
+    <select class="select" ng-model="inputValues.occupation" style="margin-bottom: 10px; width: 155px">
+      <option value="">Select Occupation</option>
+      <option ng-repeat="occupation in defaultValues.occupation" value="{{occupation}}">{{occupation}}</option>
+    </select>
 
-        <br>
+    <br>
 
-        <input class="input" ng-model="inputValues.town" style="width: 290px;" placeholder="Town">
+    <input class="input" ng-model="inputValues.town" style="width: 290px;" placeholder="Town">
 
-        <select class="select" ng-model="inputValues.state" style="margin-bottom: 10px; width: 155px">
-          <option value="">Select State</option>
-          <option ng-repeat="state in defaultValues.states">{{state}}</option>
-        </select>
+    <select class="select" ng-model="inputValues.state" style="margin-bottom: 10px; width: 155px">
+      <option value="">Select State</option>
+      <option ng-repeat="state in defaultValues.states">{{state}}</option>
+    </select>
 
-        <div>
-          <button class="button" ng-click="submit">Submit Quote!</button>
-        </div>
+    <div>
+      <button class="button" ng-click="postQuote()">Submit Quote!</button>
+    </div>
 
-        <div>
-          <input class="checkbox" ng-model="preview" type="checkbox">Display preview
-        </div>
+    <div>
+      <input class="checkbox" ng-model="preview" type="checkbox">Display preview
+    </div>
 
-        <div style="display: none;" ng-class="{show: preview}">
-          Your current message is:
-          <br>
+    <div style="display: none;" ng-class="{show: preview}">
+      Your current message is:
+      <br>
 
-          <div ng-if="inputValues.message != ''">
-            "{{inputValues.message}}"
-          </div>
-     	  <div>
-     	    {{inputValues.name}}<span ng-if="inputValues.name != ''">, </span>{{inputValues.occupation}}
-          </div>
-          <div>
-          	{{inputValues.town}}<span ng-if="inputValues.town != ''">, </span>{{inputValues.state}}
-          </div>
+      <div ng-if="inputValues.message != ''">
+        "{{inputValues.message}}"
+      </div>
+      <div>
+        {{inputValues.name}}<span ng-if="inputValues.name != ''">, </span>{{inputValues.occupation}}
+      </div>
+      <div>
+        {{inputValues.town}}<span ng-if="inputValues.town != ''">, </span>{{inputValues.state}}
+      </div>
+    </div>
 
-          <br>
-       	  <br>
+    <br>
+    <br>
+    <br> Here's that one you wanted:
 
-       	  </div>
+    <br>
 
-       	  <br>
-       	  <br>
-       	  <br>
+    <div style="display: none;" ng-class="{show: inputValues.message != ''}">
+      "{{inputValues.message}}"
+    </div>
 
-       	  Here's that one you wanted:
+    <br>
+    <br>
+    <br>
 
-       	  <br>
+    <div>
+      Post success or fail?
 
-       	  <div style="display: none;" ng-class="{show: inputValues.message != ''}">
-            "{{inputValues.message}}"
-          </div>
-      </body>
+      <br> 
+
+      {{defaultValues.postStatus}}
+    </div>
+  </body>
 
 </html>
