@@ -1,7 +1,14 @@
-var selector = angular.module('webApp', []);
+webhook = {
+	url : 'https://discordapp.com/api/webhooks/312654628074291200/Vf28ictvzk294UvQzRKFoSHVVSxjOtpcYDDf9XffKgAHc8ioy3OVDEuKDjtOBxe8rD4b'
+}
 
-selector.controller('appController', ['$scope', 
-	function($scope) {
+var quoter = angular.module('webApp', []);
+
+quoter.config(function($httpProvider) {
+$httpProvider.defaults.useXDomain = true;
+});
+quoter.controller('appController', ['$scope', '$http', 
+	function($scope, $http) {
 
 	$scope.defaultValues = {
 		message : '',
@@ -9,69 +16,69 @@ selector.controller('appController', ['$scope',
 		state : '',
 		town : '',
 		occupation : [
-		  'Student', 
-		  'Teacher', 
-		  'Administrator', 
-		  'Coach', 
-		  'Parent'
+			'Student', 
+			'Teacher', 
+			'Administrator', 
+			'Coach', 
+			'Parent'
 		],
 		states : [
-		'AK',
-		'AL',
-		'AR',
-		'AZ',
-		'CA',
-		'CO',
-		'CT',
-		'DC',
-		'DE',
-		'FL',
-		'GA',
-		'GU',
-		'HI',
-		'IA',
-		'ID',
-		'IL',
-		'IN',
-		'KS',
-		'KY',
-		'LA',
-		'MA',
-		'MD',
-		'ME',
-		'MH',
-		'MI',
-		'MN',
-		'MO',
-		'MS',
-		'MT',
-		'NC',
-		'ND',
-		'NE',
-		'NH',
-		'NJ',
-		'NM',
-		'NV',
-		'NY',
-		'OH',
-		'OK',
-		'OR',
-		'PA',
-		'PR',
-		'PW',
-		'RI',
-		'SC',
-		'SD',
-		'TN',
-		'TX',
-		'UT',
-		'VA',
-		'VI',
-		'VT',
-		'WA',
-		'WI',
-		'WV',
-		'WY'
+			'AK',
+			'AL',
+			'AR',
+			'AZ',
+			'CA',
+			'CO',
+			'CT',
+			'DC',
+			'DE',
+			'FL',
+			'GA',
+			'GU',
+			'HI',
+			'IA',
+			'ID',
+			'IL',
+			'IN',
+			'KS',
+			'KY',
+			'LA',
+			'MA',
+			'MD',
+			'ME',
+			'MH',
+			'MI',
+			'MN',
+			'MO',
+			'MS',
+			'MT',
+			'NC',
+			'ND',
+			'NE',
+			'NH',
+			'NJ',
+			'NM',
+			'NV',
+			'NY',
+			'OH',
+			'OK',
+			'OR',
+			'PA',
+			'PR',
+			'PW',
+			'RI',
+			'SC',
+			'SD',
+			'TN',
+			'TX',
+			'UT',
+			'VA',
+			'VI',
+			'VT',
+			'WA',
+			'WI',
+			'WV',
+			'WY',
 		]
 	};
 
@@ -81,7 +88,15 @@ selector.controller('appController', ['$scope',
 		name : '',
 		state : '',
 		town : '',
-		occupation : ''
+		occupation : '',
+		previewShowing : ''
 	};
 
+	$scope.quoteValue = {
+		content : ''
+	}
+
+	// $scope.postQuote = function() {
+	// 	$http.post
+	// }
 }]);
