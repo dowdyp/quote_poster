@@ -121,7 +121,9 @@ quoter.controller('appController', ['$scope', '$http',
 			method: 'POST',
 			url: $scope.config.webhook_url,
 		 	headers: auth.headers,
-		 	data: $scope.inputValues.message
+		 	data: {
+				content : $scope.inputValues.message
+			}
 		}
 
 		$http(req)
