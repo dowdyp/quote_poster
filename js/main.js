@@ -88,10 +88,13 @@ function($scope, $http, $interval) {
     ]
   };
 
-  $scope.auth_config = {
+  $scope.quoteids = null;
+
+  $scope.getreq_config = {
     headers : {
-      Authorization : false
-    }
+      Authorization : false,
+    },
+    limit : 15
   }
 
   $scope.inputValues = {
@@ -117,39 +120,49 @@ function($scope, $http, $interval) {
     quotes : null
   };
 
-  $scope.quoteids = {
-    last : null,
-    first : null
-  };
+  $scope.quote_ids = [];
+
+  $scope.earliestQuote = _.last($scope.quote_ids); //Oldest quote from the array
+
+  $scope.latestQuote = _.first($scope.quote_ids); //Newest quote from the array
+
+  $scope.getreq_config.headers.Authorization = "Bot " + $scope.config.app_token;
 
   //Load Channel
 
   $scope.loadQuotes = function() {
 
-    $scope.auth_config.headers.Authorization = "Bot " + $scope.config.app_token;
-
     var req = {
-      get_url: $scope.config.api_root + "/channels/" + $scope.config.channel_id + "/messages",
-      headers: $scope.auth_config
+      get_url: $scope.config.api_root + "/channels/" + $scope.config.channel_id + "/messages?limit=" + $scope.getreq_config.limit,
+      headers: $scope.getreq_config
     };
 
     $http.get(req.get_url, req.headers).then(function(response) {
         $scope.quote_data.quotes = response.data;
-        console.log('GET success');
+        //console.log('GET success');
+        angular.forEach($scope.quote_data.quotes, function(value) {
+          $scope.quote_ids.push(value.id);
+        }, $scope.quote_ids);
+        console.log($scope.quote_data.quotes); 
+        console.log($scope.quote_ids);
       },
+
       function(error) {
-        alert('GET fail' + error.statusText)
         console.log('GET fail');
       });
   };
 
+  console.log($scope.quote_ids);
 
   //Load Post After Newest
 
-  $scope.autoLoad = function() {
+  // autoLoad = function() {
 
-  }
-
+  //   var req = {
+  //     url: $scope.config.api_root + /channels/ + $scope.config.channel_id + "/messages?after" + $scope.latestQuote,
+  //     headers: $scope.getreq_config
+  //   };
+  // };
 
   //Post to Channel
 
@@ -157,7 +170,6 @@ function($scope, $http, $interval) {
 
     var req = {
       url: $scope.config.webhook_url,
-      headers: auth.headers,
       data: {
         content: "\"" + $scope.inputValues.message + "\"\n-" + $scope.inputValues.name + ", " + $scope.inputValues.occupation + "\n" + $scope.inputValues.town + ", " + $scope.inputValues.state
       }
@@ -166,6 +178,7 @@ function($scope, $http, $interval) {
     $http.post(req.url, req.data, req.headers).then(function(response) {
         $scope.defaultValues.postStatus = $scope.inputValues.postSuccess;
       },
+
       function() {
         $scope.defaultValues.postStatus = $scope.inputValues.postFail;
         console.log('rip');
@@ -173,6 +186,7 @@ function($scope, $http, $interval) {
     };
 
     $scope.loadQuotes();
-    //Polling Interval
 
+    //Polling Interval
+    $interval(autoLoad, 5000);
 }]);
