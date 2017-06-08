@@ -178,7 +178,6 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
         //Initialize polling
 
         $interval($scope.autoLoad, 5000);
-        debugging();
 
       },
 
