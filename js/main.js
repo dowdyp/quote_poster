@@ -13,180 +13,244 @@ var quoter = angular.module('webApp', []);
 quoter.config(function($httpProvider) {
   $httpProvider.defaults.useXDomain = true;
 });
-quoter.controller('appController', ['$scope', '$http', '$interval',
-function($scope, $http, $interval) {
+quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
+  function($scope, $http, $interval, $timeout) {
 
-  $scope.defaultValues = {
-    message: '',
-    name: '',
-    state: '',
-    town: '',
-    occupation: [
-      'Student',
-      'Teacher',
-      'Administrator',
-      'Coach',
-      'Parent'
-    ],
-    states: [
-      'AK',
-      'AL',
-      'AR',
-      'AZ',
-      'CA',
-      'CO',
-      'CT',
-      'DC',
-      'DE',
-      'FL',
-      'GA',
-      'GU',
-      'HI',
-      'IA',
-      'ID',
-      'IL',
-      'IN',
-      'KS',
-      'KY',
-      'LA',
-      'MA',
-      'MD',
-      'ME',
-      'MH',
-      'MI',
-      'MN',
-      'MO',
-      'MS',
-      'MT',
-      'NC',
-      'ND',
-      'NE',
-      'NH',
-      'NJ',
-      'NM',
-      'NV',
-      'NY',
-      'OH',
-      'OK',
-      'OR',
-      'PA',
-      'PR',
-      'PW',
-      'RI',
-      'SC',
-      'SD',
-      'TN',
-      'TX',
-      'UT',
-      'VA',
-      'VI',
-      'VT',
-      'WA',
-      'WI',
-      'WV',
-      'WY',
-    ]
-  };
-
-  $scope.quoteids = null;
-
-  $scope.getreq_config = {
-    headers : {
-      Authorization : false,
-    },
-    limit : 15
-  }
-
-  $scope.inputValues = {
-    message: '',
-    name: '',
-    state: '',
-    town: '',
-    occupation: '',
-    previewShowing: '',
-    postSuccess: 'Quote Posted!',
-    postFail: 'Error posting.',
-    postStatus: ''
-  };
-
-  $scope.config = {
-    api_root: 'https://discordapp.com/api',
-    channel_id: '319222002361696256',
-    app_token: 'MTc5NjEyNzk2NjA0OTA3NTIw.DBIvuQ.adN1QX9JNQEHvTl3zYxg3PVwIhc',
-    webhook_url: 'https://discordapp.com/api/webhooks/319222030958460929/QHd2gP-4FvVzXlnopLLnQkl4Kq7ONAHsIvHdpIHAI8IpLThj7irvRLYP7Q987qAbRidS'
-  };
-
-  $scope.quote_data = {
-    quotes : null
-  };
-
-  $scope.quote_ids = [];
-
-  $scope.earliestQuote = _.last($scope.quote_ids); //Oldest quote from the array
-
-  $scope.latestQuote = _.first($scope.quote_ids); //Newest quote from the array
-
-  $scope.getreq_config.headers.Authorization = "Bot " + $scope.config.app_token;
-
-  //Load Channel
-
-  $scope.loadQuotes = function() {
-
-    var req = {
-      get_url: $scope.config.api_root + "/channels/" + $scope.config.channel_id + "/messages?limit=" + $scope.getreq_config.limit,
-      headers: $scope.getreq_config
+    $scope.defaultValues = {
+      message: '',
+      name: '',
+      state: '',
+      town: '',
+      occupation: [
+        'Student',
+        'Teacher',
+        'Administrator',
+        'Coach',
+        'Parent'
+      ],
+      states: [
+        'AK',
+        'AL',
+        'AR',
+        'AZ',
+        'CA',
+        'CO',
+        'CT',
+        'DC',
+        'DE',
+        'FL',
+        'GA',
+        'GU',
+        'HI',
+        'IA',
+        'ID',
+        'IL',
+        'IN',
+        'KS',
+        'KY',
+        'LA',
+        'MA',
+        'MD',
+        'ME',
+        'MH',
+        'MI',
+        'MN',
+        'MO',
+        'MS',
+        'MT',
+        'NC',
+        'ND',
+        'NE',
+        'NH',
+        'NJ',
+        'NM',
+        'NV',
+        'NY',
+        'OH',
+        'OK',
+        'OR',
+        'PA',
+        'PR',
+        'PW',
+        'RI',
+        'SC',
+        'SD',
+        'TN',
+        'TX',
+        'UT',
+        'VA',
+        'VI',
+        'VT',
+        'WA',
+        'WI',
+        'WV',
+        'WY',
+      ]
     };
 
-    $http.get(req.get_url, req.headers).then(function(response) {
+    $scope.quoteids = null;
+
+    $scope.getreq_config = {
+      headers: {
+        Authorization: false,
+      },
+      limit: 15
+    }
+
+    $scope.inputValues = {
+      message: '',
+      name: '',
+      state: '',
+      town: '',
+      occupation: '',
+      previewShowing: '',
+      postSuccess: 'Quote Posted!',
+      postFail: 'Error posting.',
+      postStatus: ''
+    };
+
+    $scope.config = {
+      api_root: 'https://discordapp.com/api',
+      channel_id: '319222002361696256',
+      app_token: 'MTc5NjEyNzk2NjA0OTA3NTIw.DBIvuQ.adN1QX9JNQEHvTl3zYxg3PVwIhc',
+      webhook_url: 'https://discordapp.com/api/webhooks/319222030958460929/QHd2gP-4FvVzXlnopLLnQkl4Kq7ONAHsIvHdpIHAI8IpLThj7irvRLYP7Q987qAbRidS'
+    };
+
+    $scope.quote_data = {
+      quotes: null,
+      ids: [],
+      earliest: null,
+      latest: null
+    };
+
+    $scope.getreq_config.headers.Authorization = "Bot " + $scope.config.app_token;
+
+// <--------- END SCOPE VALUES --------->
+
+
+
+
+    //Prints most active data values to trace any errors in data placement.
+
+    debugging = function() {
+      console.log($scope.quote_data.quotes);
+      console.log($scope.quote_data.ids);
+      console.log($scope.quote_data.latest);
+      console.log($scope.quote_data.earliest);
+    }
+
+
+
+
+    //Sets values for first and last quote
+    
+    setFirstLast = function() {
+      $scope.quote_data.earliest = _.last($scope.quote_data.ids);
+      $scope.quote_data.latest = _.first($scope.quote_data.ids);
+    }
+
+
+
+
+    //Load Channel
+
+    $scope.initializeLoad = function() {
+
+      var req = {
+        get_url: $scope.config.api_root + "/channels/" + $scope.config.channel_id + "/messages?limit=" + $scope.getreq_config.limit,
+        headers: $scope.getreq_config
+      };
+
+      $http.get(req.get_url, req.headers)
+
+      .then(function(response) {
         $scope.quote_data.quotes = response.data;
-        //console.log('GET success');
-        angular.forEach($scope.quote_data.quotes, function(value) {
-          $scope.quote_ids.push(value.id);
-        }, $scope.quote_ids);
-        console.log($scope.quote_data.quotes); 
-        console.log($scope.quote_ids);
+        
+        angular.forEach($scope.quote_data.quotes,
+        
+        function(value) {
+          this.push(value.id);
+        },
+
+        $scope.quote_data.ids);
+        setFirstLast();
+
+        //Initialize polling
+
+        $interval($scope.autoLoad, 5000);
+        debugging();
+
       },
 
       function(error) {
         console.log('GET fail');
       });
-  };
-
-  console.log($scope.quote_ids);
-
-  //Load Post After Newest
-
-  // autoLoad = function() {
-
-  //   var req = {
-  //     url: $scope.config.api_root + /channels/ + $scope.config.channel_id + "/messages?after" + $scope.latestQuote,
-  //     headers: $scope.getreq_config
-  //   };
-  // };
-
-  //Post to Channel
-
-  $scope.postQuote = function() {
-
-    var req = {
-      url: $scope.config.webhook_url,
-      data: {
-        content: "\"" + $scope.inputValues.message + "\"\n-" + $scope.inputValues.name + ", " + $scope.inputValues.occupation + "\n" + $scope.inputValues.town + ", " + $scope.inputValues.state
-      }
     };
 
-    $http.post(req.url, req.data, req.headers).then(function(response) {
-        $scope.defaultValues.postStatus = $scope.inputValues.postSuccess;
+
+
+
+    //Load Post After Newest
+
+    $scope.autoLoad = function() {
+
+      var req = {
+        url: $scope.config.api_root + /channels/ + $scope.config.channel_id + "/messages?after=" + $scope.quote_data.latest,
+        headers: $scope.getreq_config
+      };
+
+      $http.get(req.url, req.headers)
+    
+      .then(function(response) {
+    
+        var values = [];
+        var values = response.data.reverse();
+        
+        angular.forEach(values, function(value) {
+
+          $scope.quote_data.ids.unshift(value.id);
+          $scope.quote_data.quotes.unshift(value);
+          setFirstLast();
+        }, $scope.quote_data) 
+
+    
       },
+        
+        function(error) {
+          console.log('Autoload fail');
+        })
+      };
 
-      function() {
-        $scope.defaultValues.postStatus = $scope.inputValues.postFail;
-        console.log('rip');
-      });
+
+
+
+    //Post to Channel
+
+    $scope.postQuote = function() {
+
+      var req = {
+        url: $scope.config.webhook_url,
+        data: {
+          content: "\"" + $scope.inputValues.message + "\"\n-" + $scope.inputValues.name + ", " + $scope.inputValues.occupation + "\n" + $scope.inputValues.town + ", " + $scope.inputValues.state
+        }
+      };
+
+      $http.post(req.url, req.data, req.headers).then(function(response) {
+          $scope.defaultValues.postStatus = $scope.inputValues.postSuccess;
+          $scope.autoLoad();
+        },
+
+        function() {
+          $scope.defaultValues.postStatus = $scope.inputValues.postFail;
+          console.log('rip');
+        });
     };
 
-    $scope.loadQuotes();
 
-    //Polling Interval
-    $interval(autoLoad, 5000);
+
+
+    //Initialize
+
+    $scope.initializeLoad();
+
 }]);

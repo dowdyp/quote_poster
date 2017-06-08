@@ -35,7 +35,7 @@
     <!-- Import main scripts -->
 
     <script src="./js/main.js" type="text/javascript"></script>
-    <script src="loop_examples.js" type="text/javascript"></script>
+    <!-- <script src="loop_examples.js" type="text/javascript"></script> -->
 
     <!-- End Head Directives -->
 
@@ -68,7 +68,6 @@
 
       <div>
         <button class="button" ng-click="postQuote()" ng-if="inputValues.message&&inputValues.name&&inputValues.occupation&&inputValues.town&&inputValues.state != ''">Submit Quote!</button>
-        <button class="button" ng-click="loadQuotes()">Load New Quotes</button>
       </div>
 
       <br>
@@ -91,7 +90,7 @@
           {{inputValues.town}}<span ng-if="inputValues.town != '' && inputValues.state != ''">, </span>{{inputValues.state}}
         </div>
       </div>
-      <!--     <br>
+<!--     <br>
     <br>
     <br> Here's that one you wanted:
 
@@ -124,5 +123,6 @@
         <br>
       </div>
     </div>
+      <button class="button" ng-click="autoLoad()">Load New Quotes</button>
   </body>
 </html>
