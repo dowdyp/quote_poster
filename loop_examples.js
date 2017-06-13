@@ -11,12 +11,15 @@ for(var i = 0; i < a.length; i++){
 }
 console.log(b);
 
+
+
 // jQuery
 var c = [];
 $.each(a, function(index, value){
 	c.push(value);
 })
 console.log(c);
+
 
 
 // angular
