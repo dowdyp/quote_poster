@@ -184,6 +184,7 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
       function(error) {
         console.log('GET fail');
       });
+
     };
 
 
@@ -212,7 +213,6 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
           setFirstLast();
         }, $scope.quote_data) 
 
-    
       },
         
         function(error) {
@@ -221,6 +221,38 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
       };
 
 
+
+
+      //Load past messages
+
+      $scope.loadPast = function() {
+
+        var req = {
+          url: $scope.config.api_root + /channels/ + $scope.config.channel_id + "/messages?before=" + $scope.quote_data.earliest + "&limit=" + $scope.getreq_config.limit,
+          headers: $scope.getreq_config
+        };
+
+      $http.get(req.url, req.headers)
+    
+      .then(function(response) {
+    
+        var values = [];
+        var values = response.data;
+        
+        angular.forEach(values, function(value) {
+
+          $scope.quote_data.ids.push(value.id);
+          $scope.quote_data.quotes.push(value);
+          setFirstLast();
+        }, $scope.quote_data)
+        debugging(); 
+
+      },
+        
+        function(error) {
+          console.log('Autoload fail');
+        });
+      };
 
 
     //Post to Channel
@@ -245,6 +277,24 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
         });
     };
 
+    
+
+    $scope.updateScrollPosition = function() {
+
+      var threshhold = $("div.result-container").scrollTop();
+      var parent = $("div.result-container").height();
+      var child = $("div.fullview").height();
+      var scrollThreshhold = child - parent;
+      console.log(scrollThreshhold);
+      if (scrollThreshhold >= threshhold) {
+        $scope.loadPast;
+      }
+    }
+
+      $("div.result-container").scroll($scope.updateScrollPosition)
+    };
+
+    //If scrollTop is greater than container minus content window, call function.
 
 
 
