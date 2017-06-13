@@ -123,6 +123,8 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
       latest: null
     };
 
+    $scope.buffer = 30;
+
     $scope.getreq_config.headers.Authorization = "Bot " + $scope.config.app_token;
 
 // <--------- END SCOPE VALUES --------->
@@ -178,6 +180,8 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
         //Initialize polling
 
         $interval($scope.autoLoad, 5000);
+
+        $interval($scope.updateScrollPosition, 1000);
 
       },
 
@@ -245,8 +249,6 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
           $scope.quote_data.quotes.push(value);
           setFirstLast();
         }, $scope.quote_data)
-        debugging(); 
-
       },
         
         function(error) {
@@ -277,22 +279,20 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
         });
     };
 
-    
 
     $scope.updateScrollPosition = function() {
 
-      var threshhold = $("div.result-container").scrollTop();
+      var scrollPos = $("div.result-container").scrollTop();
       var parent = $("div.result-container").height();
       var child = $("div.fullview").height();
-      var scrollThreshhold = child - parent;
-      console.log(scrollThreshhold);
-      if (scrollThreshhold >= threshhold) {
-        $scope.loadPast;
-      }
-    }
+      var scrollThreshhold = Math.abs(parent - child - $scope.buffer);
 
-      $("div.result-container").scroll($scope.updateScrollPosition)
-    };
+      // console.log(scrollPos, parent, child, scrollThreshhold);
+
+      if (scrollPos >= scrollThreshhold) {
+        $scope.loadPast();
+      };
+    }
 
     //If scrollTop is greater than container minus content window, call function.
 
