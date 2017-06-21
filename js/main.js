@@ -127,7 +127,7 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
 
     $scope.getreq_config.headers.Authorization = "Bot " + $scope.config.app_token;
 
-// <--------- END SCOPE VALUES --------->
+    // <--------- END SCOPE VALUES --------->
 
 
 
@@ -145,114 +145,68 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
 
 
     //Sets values for first and last quote
-    
+
     setFirstLast = function() {
       $scope.quote_data.earliest = _.last($scope.quote_data.ids);
       $scope.quote_data.latest = _.first($scope.quote_data.ids);
     }
 
-
-
-
-    //Load Channel
-
-    $scope.init = function() {
-
-      var req = {
-        get_url: $scope.config.api_root + "/channels/" + $scope.config.channel_id + "/messages?limit=" + $scope.getreq_config.limit,
-        headers: $scope.getreq_config
-      };
-
-      $http.get(req.get_url, req.headers)
-
-      .then(function(response) {
-        $scope.quote_data.quotes = response.data;
-        
-        angular.forEach($scope.quote_data.quotes,
-        
-        function(value) {
-          this.push(value.id);
-        },
-
-        $scope.quote_data.ids);
-        setFirstLast();
-
-        //Initialize polling
-
-        $interval($scope.autoLoad, 5000);
-
-      },
-
-      function(error) {
-        console.log('GET fail');
-      });
-
-    };
-
-
-
-
-    //Load Post After Newest
+    // Loads new messages every five seconds, want to replace with a websocket though.
 
     $scope.autoLoad = function() {
-
       var req = {
         url: $scope.config.api_root + /channels/ + $scope.config.channel_id + "/messages?after=" + $scope.quote_data.latest,
         headers: $scope.getreq_config
       };
 
       $http.get(req.url, req.headers)
-    
+
       .then(function(response) {
-    
-        var values = [];
-        var values = response.data.reverse();
-        
-        angular.forEach(values, function(value) {
 
-          $scope.quote_data.ids.unshift(value.id);
-          $scope.quote_data.quotes.unshift(value);
-          setFirstLast();
-        }, $scope.quote_data) 
+          var values = [];
+          var values = response.data.reverse();
 
-      },
-        
+          angular.forEach(values, function(value) {
+            $scope.quote_data.ids.unshift(value.id);
+            $scope.quote_data.quotes.unshift(value);
+            setFirstLast();
+          }, $scope.quote_data)
+
+        },
+
         function(error) {
           console.log('Autoload fail');
         })
+      }
+
+    //Load Previous Messages
+
+    $scope.loadPast = function() {
+
+      var req = {
+        url: $scope.config.api_root + /channels/ + $scope.config.channel_id + "/messages?before=" + $scope.quote_data.earliest + "&limit=" + $scope.getreq_config.limit,
+        headers: $scope.getreq_config
       };
 
-
-
-
-      //Load past messages
-
-      $scope.loadPast = function() {
-
-        var req = {
-          url: $scope.config.api_root + /channels/ + $scope.config.channel_id + "/messages?before=" + $scope.quote_data.earliest + "&limit=" + $scope.getreq_config.limit,
-          headers: $scope.getreq_config
-        };
-
       $http.get(req.url, req.headers)
-    
-      .then(function(response) {
-    
-        var values = [];
-        var values = response.data;
-        
-        angular.forEach(values, function(value) {
 
-          $scope.quote_data.ids.push(value.id);
-          $scope.quote_data.quotes.push(value);
-          setFirstLast();
-        }, $scope.quote_data)
-      },
-        
+      .then(function(response) {
+
+          var values = [];
+          var values = response.data;
+
+          angular.forEach(values, function(value) {
+
+            $scope.quote_data.ids.push(value.id);
+            $scope.quote_data.quotes.push(value);
+            setFirstLast();
+          }, $scope.quote_data)
+        },
+
         function(error) {
           console.log('Autoload fail');
         });
-      };
+    };
 
 
     //Post to Channel
@@ -279,22 +233,60 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
 
     //Infinite Scroll
 
-    $( 'result-container' ).scroll(function() {
+    $("div.result-container").scroll(function() {
 
       var scrollPos = $("div.result-container").scrollTop();
       var parent = $("div.result-container").height();
       var child = $("div.fullview").height();
-      var scrollThreshhold = Math.abs(parent - child - $scope.buffer);
+      var scrollThreshhold = Math.abs(parent - child);
 
-      console.log(scrollPos, parent, child, scrollThreshhold);
+      // console.log(scrollPos, parent, child, scrollThreshhold);
 
       if (scrollPos >= scrollThreshhold) {
+
         $scope.loadPast();
+
       };
+
     });
 
-    //Initialize
+
+    //Initial Load
+
+    $scope.init = function() {
+
+      var req = {
+        get_url: $scope.config.api_root + "/channels/" + $scope.config.channel_id + "/messages?limit=" + $scope.getreq_config.limit,
+        headers: $scope.getreq_config
+      };
+
+      $http.get(req.get_url, req.headers)
+
+      .then(function(response) {
+          $scope.quote_data.quotes = response.data;
+
+          angular.forEach($scope.quote_data.quotes,
+
+            function(value) {
+              this.push(value.id);
+            },
+
+            $scope.quote_data.ids);
+          setFirstLast();
+
+          //Initialize polling
+
+          $interval($scope.autoLoad(), 5000);
+
+        },
+
+        function(error) {
+          console.log('GET fail');
+        });
+
+    };
 
     $scope.init();
 
-}]);
+  }
+]);
