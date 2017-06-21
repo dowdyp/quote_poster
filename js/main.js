@@ -156,7 +156,7 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
 
     //Load Channel
 
-    $scope.initializeLoad = function() {
+    $scope.init = function() {
 
       var req = {
         get_url: $scope.config.api_root + "/channels/" + $scope.config.channel_id + "/messages?limit=" + $scope.getreq_config.limit,
@@ -180,8 +180,6 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
         //Initialize polling
 
         $interval($scope.autoLoad, 5000);
-
-        $interval($scope.updateScrollPosition, 1000);
 
       },
 
@@ -279,27 +277,24 @@ quoter.controller('appController', ['$scope', '$http', '$interval', '$timeout',
         });
     };
 
+    //Infinite Scroll
 
-    $scope.updateScrollPosition = function() {
+    $( 'result-container' ).scroll(function() {
 
       var scrollPos = $("div.result-container").scrollTop();
       var parent = $("div.result-container").height();
       var child = $("div.fullview").height();
       var scrollThreshhold = Math.abs(parent - child - $scope.buffer);
 
-      // console.log(scrollPos, parent, child, scrollThreshhold);
+      console.log(scrollPos, parent, child, scrollThreshhold);
 
       if (scrollPos >= scrollThreshhold) {
         $scope.loadPast();
       };
-    }
-
-    //If scrollTop is greater than container minus content window, call function.
-
-
+    });
 
     //Initialize
 
-    $scope.initializeLoad();
+    $scope.init();
 
 }]);
