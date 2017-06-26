@@ -81,7 +81,6 @@
 
 				// keep the channel state in the app scope
 				$scope.currentChannel = {
-					startTime: -1,
 					hasPrevious: true,
 					posts : []
 				};
@@ -149,7 +148,9 @@
 
 						case "prev" :
 							$scope.viewState = "loadingPrev";
-							req.startTime = $scope.currentChannel.startTime;
+							if($scope.currentChannel.posts.length != 0){
+								req.startTime = $scope.currentChannel.posts[0].time;
+							}
 						break;
 
 					}
@@ -169,9 +170,6 @@
 						$scope.currentChannel.posts.sort(function(a, b){
 							return a.time > b.time;
 						})
-
-						// update the state of your channel
-						$scope.currentChannel.startTime = $scope.currentChannel.posts[0].time;
 
 						// toggle it back to normal
 						$scope.lastFetch = $scope.viewState;
