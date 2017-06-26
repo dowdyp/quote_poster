@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>jQuery \ Angular - Scroll Loader</title>
+
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+		<!-- Mobile support -->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+		<!-- FONTS -->
+			<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+			<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
+		<!-- MAJOR FRAMEWORKS -->
+
+			<!-- jQuery -->
+			<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+
+
+			<!-- Bootstrap -->
+			<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+			<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+
+			<!-- ANGULAR -->
+			<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js" type="text/javascript"></script>
+
+
+
+		<!-- Bootstrap Material Design - http://fezvrasta.github.io/bootstrap-material-design/ -->
+			<link href="bootstrap-material/bootstrap-material-design.css" rel="stylesheet">
+			<script src="bootstrap-material/material.js"></script>
+
+			<!-- BMD extensions -->
+			<script src="https://cdn.rawgit.com/FezVrasta/dropdown.js/master/jquery.dropdown.js"></script>
+			<link href="//cdn.rawgit.com/FezVrasta/dropdown.js/master/jquery.dropdown.css" rel="stylesheet">
+			<script src="//cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
+			<link href="bootstrap-material/bmd_ripples/ripples.css" rel="stylesheet">
+			<script src="bootstrap-material/bmd_ripples/ripples.js"></script>
+
+			<script>
+				$.material.init();
+			</script>
+
+
+		<!-- MY CODE -->
+		<style type="text/css">
+			.scroll_frame {
+				height: 200px;
+				overflow: auto;
+				padding: 0 19px !important;
+			}
+			.scroll_frame h3 {
+				margin-top: 0;
+				padding-top: 20px
+			}
+			.scroll_frame p {
+				margin: 10px 0 0 !important;
+			}
+			.loadMore {
+				display: block;
+				text-align: center;
+				padding: 15px 0;
+				font-style: italic;
+				cursor: pointer;
+				height: 30px;
+				line-height: 30px;
+			}
+		</style>
+
+		<script type="text/javascript">
+
+			// ANGULAR APP
+			var scrollDemo = angular.module('scrollDemoApp', []);
+			scrollDemo.controller('scrollDemoController', ['$scope', function($scope){
+
+				// keep the channel state in the app scope
+				$scope.currentChannel = {
+					startTime: -1,
+					hasPrevious: true,
+					posts : []
+				};
+
+
+				// app init
+				$scope.init = function(){
+
+					// use angular to attach listener for DOM LOAD
+						angular.element(document).ready(function () {
+
+							// when frame scrolls...
+							$('.scroll_frame').scroll(function(){
+								newPos = $(this).scrollTop();
+
+								// if it's at the top and there's still posts
+								if(newPos == 0 && $scope.currentChannel.hasPrevious) {
+
+									// get 'em
+									$scope.fetch_prevposts();
+
+									// trigger the DOM to update (we're technically outside the $scope here, since we're in a DOM callback)
+									// ie: angular weirdness
+									$scope.$digest();
+								}
+							});
+						});
+
+
+						// use angular to correct scroll position when posts are added
+						// ie: when the height of the content within the scrolling container changes
+						$scope.$watch(
+							function () {
+								return $('#current_post_frame').height();
+							},
+
+							function (newValue, oldValue) {
+
+								// if posts are at the top, return the scroll position to where it was (height added)
+								$('.scroll_frame').scrollTop(newValue - oldValue);
+
+								// if new posts come in at the bottom, maybe scroll down ?
+								// ENTER CODE HERE
+	  					}
+				    );
+
+					// get the first few posts
+					$scope.fetch_prevposts();
+
+				}
+
+
+				$scope.fetch_prevposts = function(){
+
+					// use your current state to fetch your content (your api call goes here)
+					var response = getPosts($scope.currentChannel.startTime);
+
+					// if it's at the top (fewer posts than requested), toggle off
+					if(response.posts.length < 3){
+						$scope.currentChannel.hasPrevious = false;
+						return;
+					}
+
+					// no need for an else, if you didn't have a good response, you'd be gone by now
+
+					// prepend new posts to current channel
+					$scope.currentChannel.posts = response.posts.concat($scope.currentChannel.posts);
+
+					// update the state of your channel
+					$scope.currentChannel.startTime = $scope.currentChannel.posts[0].time;
+
+				}
+
+				// and go!!!
+				$scope.init();
+
+			}]);
+
+
+
+			// Generate Dummy Data
+			var date = 30;
+			getPosts = function(){
+				var set = [];
+
+				for(var i = 0; i < 3; i++){
+					if(date == 0) break;
+					set.push({
+						title : 'June ' + date,
+						html : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis luctus egestas neque, sed pulvinar orci egestas nec. Quisque tincidunt dictum justo, id posuere massa faucibus vitae. Quisque eu tellus consectetur, euismod purus a, elementum risus. Sed gravida ligula felis, sit amet convallis tortor tristique at.',
+						time : date
+					});
+					date--;
+				}
+
+				return {
+					posts : set.reverse()
+				}
+			}
+
+		</script>
+
+	</head>
+	<body ng-app="scrollDemoApp" ng-controller="scrollDemoController">
+		<div class="container">
+
+			<!-- PAGE HEADER -->
+			<div class="page-header">
+    		<h1>Dynamic Scroll Example</h1>
+    	</div>
+
+			<!-- KEEP SCROLL FRAME AT HALF THE PAGE WIDTH (BUT FULL ON MOBILE)-->
+    	<div class="row">
+      	<div class="col-md-6">
+
+					<!-- BEGIN SCROLL FRAME -->
+					<div class="well scroll_frame" id="scroll_frame_Channel1">
+
+						<!-- LINKS AT THE TOP OF THE FEED -->
+						<a class="loadMore" ng-click="fetch_prevposts()" ng-if="currentChannel.hasPrevious">
+							LOAD MORE
+						</a>
+						<a class="loadMore" ng-click="fetch_prevposts()" ng-if="!currentChannel.hasPrevious">
+							Welcome to the beginning of the channel.
+						</a>
+
+						<!-- CONTAINER OF POSTS - CHANGES IN HEIGHT, SCROLL FRAME DOESN'T -->
+						<div id="current_post_frame">
+
+							<!-- LOOP THROUGH POSTS -->
+							<div ng-repeat="post in currentChannel.posts" id="post_{{post.id}}">
+								<h3>{{post.title}}</h3>
+								<p>{{post.html}}</p>
+							</div>
+						</div>
+
+					</div><!-- END SCROLL FRAME -->
+
+
+				</div>
+			</div>
+
+
+		</div>
+	</body>
+</html>

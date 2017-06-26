@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>jQuery - Scroll Loader</title>
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+		<!-- Mobile support -->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+		<!-- FONTS -->
+			<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+			<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
+		<!-- MAJOR FRAMEWORKS -->
+
+			<!-- jQuery -->
+			<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+		
+
+			<!-- Bootstrap -->
+			<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+			<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+
+
+		<!-- Bootstrap Material Design - http://fezvrasta.github.io/bootstrap-material-design/ -->
+			<link href="bootstrap-material/bootstrap-material-design.css" rel="stylesheet">
+			<script src="bootstrap-material/material.js"></script>
+			
+			<!-- BMD extensions -->
+			<script src="https://cdn.rawgit.com/FezVrasta/dropdown.js/master/jquery.dropdown.js"></script>
+			<link href="//cdn.rawgit.com/FezVrasta/dropdown.js/master/jquery.dropdown.css" rel="stylesheet">
+			<script src="//cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
+			<link href="bootstrap-material/bmd_ripples/ripples.css" rel="stylesheet">
+			<script src="bootstrap-material/bmd_ripples/ripples.js"></script>
+
+			<script>
+				$.material.init();
+			</script>
+
+
+		<!-- MY CODE -->
+		<style type="text/css">
+			.scroll_frame {
+				height: 200px;
+				overflow: auto;
+				padding: 0 19px !important;
+			}
+			.scroll_frame h3 {
+				margin-top: 0;
+				padding-top: 20px
+			}
+			.scroll_frame p {
+				margin: 10px 0 0 !important;
+			}
+			.loadMore {
+				display: block;
+				text-align: center;
+				padding: 15px 0;
+				font-style: italic;
+				cursor: pointer;
+				height: 30px;
+				line-height: 30px;
+			}
+		</style>
+
+		<script type="text/javascript">
+
+
+			// Good ol' dummy data...
+			var messages = [
+
+				'<h3>June 17</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis luctus egestas neque, sed pulvinar orci egestas nec. Quisque tincidunt dictum justo, id posuere massa faucibus vitae. Quisque eu tellus consectetur, euismod purus a, elementum risus. Sed gravida ligula felis, sit amet convallis tortor tristique at.</p>',
+
+				'<h3>June 16</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis luctus egestas neque, sed pulvinar orci egestas nec. Quisque tincidunt dictum justo, id	 posuere massa faucibus vitae. Quisque eu tellus consectetur, euismod purus a, elementum risus. Sed gravida ligula felis, sit amet convallis tortor tristique at.</p>',
+
+				'<h3>June 15</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis luctus egestas neque, sed pulvinar orci egestas nec. Quisque tincidunt dictum justo, id posuere massa faucibus vitae. Quisque eu tellus consectetur, euismod purus a, elementum risus. Sed gravida ligula felis, sit amet convallis tortor tristique at.</p>',
+
+				'<h3>June 14</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis luctus egestas neque, sed pulvinar orci egestas nec. Quisque tincidunt dictum justo, id posuere massa faucibus vitae. Quisque eu tellus consectetur, euismod purus a, elementum risus. Sed gravida ligula felis, sit amet convallis tortor tristique at.</p>',
+
+				'<h3>June 13</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis luctus egestas neque, sed pulvinar orci egestas nec. Quisque tincidunt dictum justo, id posuere massa faucibus vitae. Quisque eu tellus consectetur, euismod purus a, elementum risus. Sed gravida ligula felis, sit amet convallis tortor tristique at.</p>',
+				
+				'<h3>June 12</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis luctus egestas neque, sed pulvinar orci egestas nec. Quisque tincidunt dictum justo, id posuere massa faucibus vitae. Quisque eu tellus consectetur, euismod purus a, elementum risus. Sed gravida ligula felis, sit amet convallis tortor tristique at.</p>',
+				
+				'<h3>June 11</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis luctus egestas neque, sed pulvinar orci egestas nec. Quisque tincidunt dictum justo, id posuere massa faucibus vitae. Quisque eu tellus consectetur, euismod purus a, elementum risus. Sed gravida ligula felis, sit amet convallis tortor tristique at.</p>',
+				
+				'<h3>June 10</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis luctus egestas neque, sed pulvinar orci egestas nec. Quisque tincidunt dictum justo, id posuere massa faucibus vitae. Quisque eu tellus consectetur, euismod purus a, elementum risus. Sed gravida ligula felis, sit amet convallis tortor tristique at.</p>',
+				
+			];
+
+
+
+			// maintain some sort of global data object to hold the state of each of your channels
+			channels = {
+				"Channel1" : {
+					startTime: -1
+				},
+				"Channel2" :{
+					startTime: -1
+				} 
+			}
+			
+
+			fetch_html = function(channel_id){
+
+				// get your channel
+				var currentChannel = channels[channel_id];
+
+
+				// get your current state
+				p = currentChannel.startTime;
+
+
+				// use your current state to fetch your content (your api call goes here)
+				var txt = messages[p + 1];
+
+
+				// if it's bad, return false - Do some unit tests to make sure this fails cleanly!!!
+				if(!txt) return false;
+
+
+				// If it's good (you don't need an else, if it wasn't good, you'd be gone by now)
+
+				// update the state of your channel
+				currentChannel.startTime++;
+				
+				// Format your content into HTML 
+				var html = '<div class="post">' + txt + '</div>';
+				return html;
+			}
+
+			load_scroller = function(channel_id){
+
+				// which container are we in?
+				var targetFrame = $('#scroll_frame_' + channel_id);
+
+
+				// fetch text
+				html = fetch_html(channel_id);
+				
+
+				// handle it if it's a dud
+				if(!html){
+					$('.loadMore', targetFrame).html('Welcome to the beginning of the channel.');
+					return
+				}
+
+
+				// generate the new HTML
+				var id 			= 'textbox_' + channel_id + '_' + p;
+				var insertHTML 	= '<div id="' + id + '">' + html + '</div>';
+ 				
+
+				// add it
+				targetFrame.prepend(insertHTML);
+
+
+				// remove the old load button and add a new one
+				$('.loadMore', targetFrame).remove();
+				var loadMoreHTML = '<a class="loadMore" onclick="load_scroller(\'' + channel_id + '\')">LOAD MORE</a>';
+				targetFrame.prepend(loadMoreHTML);
+
+
+				// return scroll position
+				var addedHeight	= $('#' + id).height();
+				targetFrame.scrollTop(addedHeight);
+
+			}
+
+			// on load...
+			$(function(){
+
+				// toss a couple posts in there for both
+				load_scroller("Channel1");
+				load_scroller("Channel1");
+
+				load_scroller("Channel2");
+				load_scroller("Channel2");
+
+				// when any test frame scrolls
+				$('.scroll_frame').scroll(function(){
+
+					// are we at the top?
+					var pos = $(this).scrollTop();
+					
+
+					// if so, figure out which scroller we're in and update it
+					if(pos == 0){
+						var channel_id = this.id.split('_')[2];
+						load_scroller(channel_id);
+					}
+				})
+			})
+
+		</script>
+			
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+        		<h1>Dynamic Scroll Example</h1>
+        	</div>
+        	<div class="row">
+	        	<div class="col-md-6">
+					<div class="well scroll_frame" id="scroll_frame_Channel1"></div>
+				</div>
+				
+			</div>
+
+			<div class="page-header">
+        		<h1>What if you need multiple scrolling elements?</h1>
+        	</div>
+        	<div class="row">
+	        	<div class="col-md-6">
+					<div class="well scroll_frame" id="scroll_frame_Channel2"></div>
+				</div>
+				
+			</div>
+		</div>
+	</body>
+</html>
