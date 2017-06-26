@@ -86,6 +86,11 @@
 					posts : []
 				};
 
+				// track the view state, so you know when / where to show spinners etc.
+				$scope.viewState = 'loaded';
+				$scope.lastFetch = false;
+
+
 
 				// app init
 				$scope.init = function(){
@@ -121,7 +126,9 @@
 							function (newValue, oldValue) {
 
 								// if posts are at the top, return the scroll position to where it was (height added)
-								$('.scroll_frame').scrollTop(newValue - oldValue);
+								if($scope.lastFetch == 'loadingPrev'){
+									$('.scroll_frame').scrollTop(newValue - oldValue);
+								}
 
 								// if new posts come in at the bottom, maybe scroll down ?
 								// ENTER CODE HERE
@@ -133,25 +140,53 @@
 
 				}
 
-
 				$scope.fetch_prevposts = function(){
+					$scope.viewState = "loadingPrev";
+					$scope.fetch_posts("prev");
+				}
 
-					// use your current state to fetch your content (your api call goes here)
-					var response = getPosts($scope.currentChannel.startTime);
+				$scope.fetch_posts = function(mode){
 
-					// if it's at the top (fewer posts than requested), toggle off
-					if(response.posts.length < 3){
-						$scope.currentChannel.hasPrevious = false;
-						return;
+					var req = {};
+
+					switch(mode){
+
+						case "prev" :
+							req.startTime = $scope.currentChannel.startTime;
+						break;
+
 					}
 
-					// no need for an else, if you didn't have a good response, you'd be gone by now
+					// replace with actual API call
+					getDummyPosts(req, function(response){
 
-					// prepend new posts to current channel
-					$scope.currentChannel.posts = response.posts.concat($scope.currentChannel.posts);
+						// if you're loading previous and there are fewer posts than requested, toggle off
+						if(mode == "prev" && response.posts.length < 3){
+							$scope.currentChannel.hasPrevious = false;
+						}
 
-					// update the state of your channel
-					$scope.currentChannel.startTime = $scope.currentChannel.posts[0].time;
+						// concat new posts to current channel
+						$scope.currentChannel.posts = $scope.currentChannel.posts.concat(response.posts);
+
+						// who cares if new posts are before or after, just re-sort
+						$scope.currentChannel.posts.sort(function(a, b){
+							return a.time > b.time;
+						})
+
+						// update the state of your channel
+						$scope.currentChannel.startTime = $scope.currentChannel.posts[0].time;
+
+						// toggle it back to normal
+						$scope.lastFetch = $scope.viewState;
+						$scope.viewState = "loaded";
+
+						// it's a callback here, you may not actually need this once you integrate it into your app
+						$scope.$digest();
+
+
+					});
+
+
 
 				}
 
@@ -164,7 +199,9 @@
 
 			// Generate Dummy Data
 			var date = 30;
-			getPosts = function(){
+
+			// note: this function takes a function as an argument. check it out!
+			getDummyPosts = function(req, callback_function){
 				var set = [];
 
 				for(var i = 0; i < 3; i++){
@@ -177,9 +214,14 @@
 					date--;
 				}
 
-				return {
-					posts : set.reverse()
-				}
+
+				// simulate api processing time before function returns
+				setTimeout(
+					 function(){
+						 callback_function({ posts : set});
+					 },
+				500);
+
 			}
 
 		</script>
@@ -201,12 +243,18 @@
 					<div class="well scroll_frame" id="scroll_frame_Channel1">
 
 						<!-- LINKS AT THE TOP OF THE FEED -->
-						<a class="loadMore" ng-click="fetch_prevposts()" ng-if="currentChannel.hasPrevious">
-							LOAD MORE
-						</a>
-						<a class="loadMore" ng-click="fetch_prevposts()" ng-if="!currentChannel.hasPrevious">
-							Welcome to the beginning of the channel.
-						</a>
+						<div ng-if="viewState == 'loaded'">
+							<a class="loadMore" ng-click="fetch_prevposts()" ng-if="currentChannel.hasPrevious">
+								LOAD MORE
+							</a>
+							<a class="loadMore" ng-click="fetch_prevposts()" ng-if="!currentChannel.hasPrevious">
+								Welcome to the beginning of the channel.
+							</a>
+						</div>
+
+						<div ng-if="viewState == 'loadingPrev'" class="loadMore">
+							<img src="loading.gif" style="max-height: 100%"/>
+						</div>
 
 						<!-- CONTAINER OF POSTS - CHANGES IN HEIGHT, SCROLL FRAME DOESN'T -->
 						<div id="current_post_frame">
