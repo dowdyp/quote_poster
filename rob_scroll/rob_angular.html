@@ -106,7 +106,7 @@
 								if(newPos == 0 && $scope.currentChannel.hasPrevious) {
 
 									// get 'em
-									$scope.fetch_prevposts();
+									$scope.fetch_posts('prev');
 
 									// trigger the DOM to update (we're technically outside the $scope here, since we're in a DOM callback)
 									// ie: angular weirdness
@@ -136,14 +136,10 @@
 				    );
 
 					// get the first few posts
-					$scope.fetch_prevposts();
+					$scope.fetch_posts('prev');
 
 				}
 
-				$scope.fetch_prevposts = function(){
-					$scope.viewState = "loadingPrev";
-					$scope.fetch_posts("prev");
-				}
 
 				$scope.fetch_posts = function(mode){
 
@@ -152,6 +148,7 @@
 					switch(mode){
 
 						case "prev" :
+							$scope.viewState = "loadingPrev";
 							req.startTime = $scope.currentChannel.startTime;
 						break;
 
@@ -244,10 +241,10 @@
 
 						<!-- LINKS AT THE TOP OF THE FEED -->
 						<div ng-if="viewState == 'loaded'">
-							<a class="loadMore" ng-click="fetch_prevposts()" ng-if="currentChannel.hasPrevious">
+							<a class="loadMore" ng-click="fetch_posts('prev')" ng-if="currentChannel.hasPrevious">
 								LOAD MORE
 							</a>
-							<a class="loadMore" ng-click="fetch_prevposts()" ng-if="!currentChannel.hasPrevious">
+							<a class="loadMore" ng-if="!currentChannel.hasPrevious">
 								Welcome to the beginning of the channel.
 							</a>
 						</div>
